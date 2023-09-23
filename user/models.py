@@ -59,8 +59,18 @@ class User(AbstractUser):
         max_length=400,
         blank=True,
     )
-    following = models.ManyToManyField("self", blank=True)
-    followers = models.ManyToManyField("self", blank=True)
+    following = models.ManyToManyField(
+        "self",
+        blank=True,
+        related_name="user_following",
+        symmetrical=False
+    )
+    followers = models.ManyToManyField(
+        "self",
+        blank=True,
+        related_name="user_followers",
+        symmetrical=False
+    )
     profile_picture = models.ImageField(null=True, upload_to=user_image_file_path)
 
     USERNAME_FIELD = "email"
