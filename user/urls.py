@@ -6,12 +6,15 @@ from rest_framework_simplejwt.views import (
     TokenVerifyView,
 )
 
-from user.views import FollowUnfollowView, UserCreateView, UserListView, UserDetailView
+from user.views import FollowUnfollowView, UserCreateView, UserListView, UserDetailView, UserFollowersView, \
+    UserFollowingView
 
 urlpatterns = [
     path("", UserListView.as_view(), name="user-list"),
     path("register/", UserCreateView.as_view(), name="user-create"),
-    path("<int:pk>/", UserDetailView.as_view(), name="user-list"),
+    path("<int:pk>/", UserDetailView.as_view(), name="user-detail"),
+    path("<int:pk>/followers/", UserFollowersView.as_view(), name="user-followers"),
+    path("<int:pk>/following/", UserFollowingView.as_view(), name="user-following"),
     path("follow_unfollow/", FollowUnfollowView.as_view(), name="follow_unfollow"),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),

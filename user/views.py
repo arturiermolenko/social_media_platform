@@ -4,16 +4,17 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework import status
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from user.permissions import IsAccountOwnerOrReadOnly
+from user.permissions import IsAccountOwnerOrReadOnly, IsAccountOwnerOnly
 from user.serializers import (
     UserListSerializer,
     UserCreateSerializer,
-    UserDetailSerializer,
+    UserDetailSerializer, UserFollowersSerializer, UserFollowingSerializer,
 )
 
 
@@ -40,6 +41,34 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAccountOwnerOrReadOnly,)
     serializer_class = UserDetailSerializer
+
+
+class UserFollowersView(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAccountOwnerOnly,)
+
+    @staticmethod
+    def get_object(pk):
+        return get_object_or_404(get_user_model(), id=pk)
+
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        serializer = UserFollowersSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserFollowingView(APIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAccountOwnerOnly,)
+
+    @staticmethod
+    def get_object(pk):
+        return get_object_or_404(get_user_model(), id=pk)
+
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        serializer = UserFollowingSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FollowUnfollowView(APIView):

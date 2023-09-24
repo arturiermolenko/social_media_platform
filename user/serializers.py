@@ -55,6 +55,20 @@ class UserDetailSerializer(UserSerializer):
             "last_name",
             "bio",
             "profile_picture",
-            "following",
-            "followers",
+        ]
+
+
+class UserFollowersSerializer(UserSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "followers"
+        ]
+
+
+class UserFollowingSerializer(UserSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "following"
         ]
