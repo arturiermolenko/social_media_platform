@@ -45,20 +45,7 @@ class UserCreateSerializer(UserSerializer):
         fields = ["id", "email", "password"]
 
 
-class UserUpdateSerializer(UserSerializer):
-    class Meta:
-        model = get_user_model()
-        fields = [
-            "id",
-            "email",
-            "first_name",
-            "last_name",
-            "bio",
-            "profile_picture"
-        ]
-
-
-class UserRetrieveSerializer(UserSerializer):
+class UserDetailSerializer(UserSerializer):
     class Meta:
         model = get_user_model()
         fields = [

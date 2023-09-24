@@ -1,42 +1,45 @@
 from django.contrib.auth import get_user_model
 from django.http import Http404
-from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+from rest_framework import status
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from user.permissions import IsAccountOwnerOrReadOnly
 from user.serializers import (
-    UserSerializer,
     UserListSerializer,
     UserCreateSerializer,
-    UserUpdateSerializer,
-    UserRetrieveSerializer,
+    UserDetailSerializer,
 )
 
 
-class UserViewSet(
-    viewsets.ModelViewSet
-):
+class UserListView(generics.ListAPIView):
+    queryset = get_user_model().objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserListSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
+    filterset_fields = ["email", "first_name", "last_name"]
+    search_fields = ["email", "first_name", "last_name"]
+    ordering_fields = ["email"]
+
+
+class UserCreateView(generics.CreateAPIView):
+    queryset = get_user_model().objects.all()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (AllowAny,)
+    serializer_class = UserCreateSerializer
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = get_user_model().objects.all()
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAccountOwnerOrReadOnly,)
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return UserListSerializer
-
-        if self.action == "create":
-            return UserCreateSerializer
-
-        if self.action in ("update", "partial_update"):
-            return UserUpdateSerializer
-
-        if self.action == "retrieve":
-            return UserRetrieveSerializer
-
-        return UserSerializer
+    serializer_class = UserDetailSerializer
 
 
 class FollowUnfollowView(APIView):
