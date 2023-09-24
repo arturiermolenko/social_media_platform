@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -34,20 +33,41 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 
-class EachUserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source="user.username")
-
+class UserListSerializer(UserSerializer):
     class Meta:
-        model = settings.AUTH_USER_MODEL
-        fields = ("id", "username", "profile_picture")
-        read_only_fields = ("id", "username", "profile_picture")
+        model = get_user_model()
+        fields = ["id", "email", "first_name", "last_name", "bio", "profile_picture"]
 
 
-class FollowerSerializer(serializers.ModelSerializer):
-    followers = EachUserSerializer(many=True, read_only=True)
-    following = EachUserSerializer(many=True, read_only=True)
-
+class UserCreateSerializer(UserSerializer):
     class Meta:
-        model = settings.AUTH_USER_MODEL
-        fields = ("followers", "following")
-        read_only_fields = ("followers", "following")
+        model = get_user_model()
+        fields = ["id", "email", "password"]
+
+
+class UserUpdateSerializer(UserSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "profile_picture"
+        ]
+
+
+class UserRetrieveSerializer(UserSerializer):
+    class Meta:
+        model = get_user_model()
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "bio",
+            "profile_picture",
+            "following",
+            "followers",
+        ]

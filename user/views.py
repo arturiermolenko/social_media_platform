@@ -1,47 +1,59 @@
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.http import Http404
-from rest_framework import generics, status
+from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from user.models import User
-from user.serializers import UserSerializer
+from user.permissions import IsAccountOwnerOrReadOnly
+from user.serializers import (
+    UserSerializer,
+    UserListSerializer,
+    UserCreateSerializer,
+    UserUpdateSerializer,
+    UserRetrieveSerializer,
+)
 
 
-class CreateUserView(generics.CreateAPIView):
-    serializer_class = UserSerializer
-
-
-class ListUserView(generics.ListAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-
-class ManageUserView(generics.RetrieveUpdateAPIView):
-    serializer_class = UserSerializer
+class UserViewSet(
+    viewsets.ModelViewSet
+):
+    queryset = get_user_model().objects.all()
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAccountOwnerOrReadOnly,)
 
-    def get_object(self):
-        return self.request.user
+    def get_serializer_class(self):
+        if self.action == "list":
+            return UserListSerializer
+
+        if self.action == "create":
+            return UserCreateSerializer
+
+        if self.action in ("update", "partial_update"):
+            return UserUpdateSerializer
+
+        if self.action == "retrieve":
+            return UserRetrieveSerializer
+
+        return UserSerializer
 
 
 class FollowUnfollowView(APIView):
     permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
 
     def current_user(self):
         try:
-            return User.objects.get(id=self.request.user.id)
-        except User.DoesNotExist:
+            return get_user_model().objects.get(id=self.request.user.id)
+        except get_user_model().DoesNotExist:
             raise Http404
 
     @staticmethod
     def other_user(pk):
         try:
-            return User.objects.get(id=pk)
-        except User.DoesNotExist:
+            return get_user_model().objects.get(id=pk)
+        except get_user_model().DoesNotExist:
             raise Http404
 
     def post(self, request):
