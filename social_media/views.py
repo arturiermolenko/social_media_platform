@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import generics
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
@@ -16,7 +17,8 @@ from user.permissions import IsPostOwnerOrReadOnly
 class PostListView(generics.ListAPIView):
     queryset = (
         Post.objects.prefetch_related("liked_by", "comments").
-        select_related("author")
+        select_related("author").
+        annotate(like_count=Count("liked_by"))
     )
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
@@ -45,7 +47,8 @@ class CommentListView(generics.ListAPIView):
     queryset = (
         Comment.objects.
         select_related("author", "post",).
-        prefetch_related("liked_by")
+        prefetch_related("liked_by").
+        annotate(like_count=Count("liked_by"))
     )
     serializer_class = CommentListSerializer
     authentication_classes = (JWTAuthentication,)
@@ -71,7 +74,7 @@ class CommentCreateView(generics.CreateAPIView):
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = CommentDetailSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsPostOwnerOrReadOnly,)
 
     def get_queryset(self):
         post = get_object_or_404(Post, id=self.kwargs.get("post_id"))

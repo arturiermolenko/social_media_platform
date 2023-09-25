@@ -28,7 +28,7 @@ class IsAccountOwnerOnly(permissions.BasePermission):
 
 class IsPostOwnerOrReadOnly(permissions.BasePermission):
     """
-    Custom permission to only allow owners of the post to edit it.
+    Custom permission to only allow owners content to edit it.
     """
 
     def has_object_permission(self, request, view, obj):
