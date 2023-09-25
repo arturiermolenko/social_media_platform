@@ -14,7 +14,9 @@ from user.permissions import IsAccountOwnerOrReadOnly, IsAccountOwnerOnly
 from user.serializers import (
     UserListSerializer,
     UserCreateSerializer,
-    UserDetailSerializer, UserFollowersSerializer, UserFollowingSerializer,
+    UserDetailSerializer,
+    UserFollowersSerializer,
+    UserFollowingSerializer,
 )
 
 
