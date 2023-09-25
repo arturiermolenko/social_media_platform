@@ -32,6 +32,7 @@ class PostSerializer(serializers.ModelSerializer):
             "liked_by",
             "created_at",
             "updated_at",
+            "image"
         ]
 
 
@@ -42,6 +43,7 @@ class PostCreateSerializer(PostSerializer):
             "id",
             "title",
             "content",
+            "image"
         ]
 
 
@@ -60,4 +62,5 @@ class PostListSerializer(PostSerializer):
             "created_at",
             "updated_at",
             "comments",
+            "image"
         ]

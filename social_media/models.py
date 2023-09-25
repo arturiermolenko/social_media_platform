@@ -1,7 +1,19 @@
+import os
+import uuid
+
 from django.conf import settings
 from django.db import models
+from django.utils.text import slugify
 
 from user.models import User
+
+
+def post_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    post_title = instance.created_at
+    filename = f"{slugify(post_title)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/posts/", filename)
 
 
 class Post(models.Model):
@@ -15,6 +27,7 @@ class Post(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    image = models.ImageField(null=True, upload_to=post_image_file_path, blank=True, default=None)
 
     class Meta:
         ordering = ["-updated_at"]
