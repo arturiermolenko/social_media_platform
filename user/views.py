@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import generics
 from rest_framework import status
@@ -7,9 +7,12 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+from social_media.models import Post
+from social_media.serializers import PostListSerializer
 from user.permissions import IsAccountOwnerOrReadOnly, IsAccountOwnerOnly
 from user.serializers import (
     UserListSerializer,
@@ -100,12 +103,23 @@ class FollowUnfollowView(APIView):
         if req_type == "follow":
             current_user.following.add(other_user)
             other_user.followers.add(current_user)
-            return Response(
-                {"Following": "Following success!!"}, status=status.HTTP_200_OK
+            return HttpResponseRedirect(
+                reverse("user:user-following", args=[current_user.id])
             )
         elif req_type == "unfollow":
             current_user.following.remove(other_user)
             other_user.followers.remove(current_user)
-            return Response(
-                {"Unfollow": "Unfollow success!!"}, status=status.HTTP_200_OK
+            return HttpResponseRedirect(
+                reverse("user:user-following", args=[current_user.id])
             )
+
+
+class UserLikedPostsView(generics.ListAPIView):
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAccountOwnerOnly,)
+    serializer_class = PostListSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Post.objects.filter(liked_by=user)
+        return queryset

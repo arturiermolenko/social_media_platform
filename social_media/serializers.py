@@ -19,6 +19,9 @@ class CommentDetailSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    liked_by = serializers.SlugRelatedField(many=True, read_only=True, slug_field="email")
+    author = serializers.SlugRelatedField(many=False, read_only=True, slug_field="email")
+
     class Meta:
         model = Post
         fields = [
