@@ -20,14 +20,21 @@ class Post(models.Model):
     title = models.CharField(max_length=100)
     content = models.TextField()
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="posts"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="posts"
     )
     liked_by = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="liked_posts"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    image = models.ImageField(null=True, upload_to=post_image_file_path, blank=True, default=None)
+    image = models.ImageField(
+        null=True,
+        upload_to=post_image_file_path,
+        blank=True,
+        default=None
+    )
 
     class Meta:
         ordering = ["-updated_at"]
@@ -37,10 +44,16 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name="comments"
+    )
     content = models.CharField(max_length=300)
     author = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="comments"
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="comments"
     )
     liked_by = models.ManyToManyField(
         settings.AUTH_USER_MODEL, blank=True, related_name="liked_comments"

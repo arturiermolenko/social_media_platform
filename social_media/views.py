@@ -49,11 +49,7 @@ class PostCreateView(generics.CreateAPIView):
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = (
-        Post.objects.
-        select_related("author").
-        prefetch_related("liked_by")
-    )
+    queryset = Post.objects.select_related("author").prefetch_related("liked_by")
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsPostOwnerOrReadOnly,)
     serializer_class = PostSerializer
@@ -61,10 +57,7 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class CommentListView(generics.ListAPIView):
     queryset = (
-        Comment.objects.select_related(
-            "author",
-            "post"
-        )
+        Comment.objects.select_related("author", "post")
         .prefetch_related("liked_by")
         .annotate(like_count=Count("liked_by"))
         .order_by("-updated_at")
@@ -97,11 +90,13 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = (IsPostOwnerOrReadOnly,)
 
     def get_queryset(self):
+        queryset = Comment.objects.select_related("author", "post")
         post = get_object_or_404(Post, id=self.kwargs.get("post_id"))
-        return Comment.objects.filter(post=post)
+
+        return queryset.filter(post=post)
 
 
-class LikeUnlikeView(APIView):
+class LikeUnlikePostView(APIView):
     permission_classes = (IsAuthenticated,)
     authentication_classes = (JWTAuthentication,)
 
@@ -113,4 +108,19 @@ class LikeUnlikeView(APIView):
             post.liked_by.add(request.user)
         return HttpResponseRedirect(
             reverse("social-media:posts-detail", args=[str(pk)])
+        )
+
+
+class LikeUnlikeCommentView(APIView):
+    permission_classes = (IsAuthenticated,)
+    authentication_classes = (JWTAuthentication,)
+
+    def post(self, request, post_id, pk):
+        comment = get_object_or_404(Comment, id=pk)
+        if comment.liked_by.filter(id=request.user.id).exists():
+            comment.liked_by.remove(request.user)
+        else:
+            comment.liked_by.add(request.user)
+        return HttpResponseRedirect(
+            reverse("social-media:comment-list", args=[str(post_id)]),
         )
