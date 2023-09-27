@@ -7,9 +7,13 @@ db.sqlite3
 media
 .idea/
 .idea
-
+data
+/data
+/data/
 # Backup files # 
-*.bak 
+*.bak
+
+
 
 # If you are using PyCharm # 
 # User-specific stuff
