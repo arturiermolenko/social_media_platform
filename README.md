@@ -1,53 +1,91 @@
-# social_media_platform
-# Description:
-You are tasked with building a RESTful API for a social media platform. The API should allow users to create profiles, follow other users, create and retrieve posts, manage likes and comments, and perform basic social media actions.
+## Social Media
 
-# Requirements:
-- User Registration and Authentication:
-- Users should be able to register with their email and password to create an account.
-- Users should be able to login with their credentials and receive a token for authentication.
-- Users should be able to logout and invalidate their token.
-
-# User Profile:
-- Users should be able to create and update their profile, including profile picture, bio, and other details.
-- Users should be able to retrieve their own profile and view profiles of other users.
-- Users should be able to search for users by username or other criteria.
-
-# Follow/Unfollow:
-- Users should be able to follow and unfollow other users.
-- Users should be able to view the list of users they are following and the list of users following them.
-
-# Post Creation and Retrieval:
-- Users should be able to create new posts with text content and optional media attachments (e.g., images). (Adding images is optional task)
-- Users should be able to retrieve their own posts and posts of users they are following.
-- Users should be able to retrieve posts by hashtags or other criteria.
-
-# Likes and Comments (Optional):
-- Users should be able to like and unlike posts. Users should be able to view the list of posts they have liked. Users should be able to add comments to posts and view comments on posts.
-
-# Schedule Post creation using Celery (Optional):
-- Add possibility to schedule Post creation (you can select the time to create the Post before creating of it).
-
-# API Permissions:
-- Only authenticated users should be able to perform actions such as creating posts, liking posts, and following/unfollowing users.
-- Users should only be able to update and delete their own posts and comments.
-- Users should only be able to update and delete their own profile.
-
-# API Documentation:
-- The API should be well-documented with clear instructions on how to use each endpoint.
-- The documentation should include sample API requests and responses for different endpoints.
-
-# Technical Requirements:
-- Use Django and Django REST framework to build the API.
-- Use token-based authentication for user authentication.
-- Use appropriate serializers for data validation and representation.
-- Use appropriate views and viewsets for handling CRUD operations on models.
-- Use appropriate URL routing for different API endpoints.
-- Use appropriate permissions and authentication classes to implement API permissions.
-- Follow best practices for RESTful API design and documentation.
-
-## Note: 
-You are not required to implement a frontend interface for this task. Focus on building a well-structured and well-documented RESTful API using Django and Django REST framework. This task will test the junior DRF developer's skills in building RESTful APIs, handling authentication and permissions, working with models, serializers, views, and viewsets, and following best practices for API design and documentation.
+### The applications have the following database structure:
+![ScreenShot](/schema.jpg)
 
 
+## Installing / Getting started
 
+A quick introduction of the minimal setup you need to get Social Media app up &
+running. With this You will run server with clean Database.
+
+### Python3 must be already installed!
+
+### You also need to install PostgreSQL and create a database.
+
+```shell
+git clone https://github.com/arturiermolenko/social_media_platform
+cd social_media_platform
+python3 -m venv venv 
+source venv/bin/activate
+pip install -r requirements.txt
+touch .env
+python manage.py migrate
+python manage.py runserver
+```
+Instead of "touch .env" use, please, command "echo > .env" for Windows.
+Fill .env file in according to .env_sample
+
+## Running with Docker
+
+Docker must be already installed!
+
+```shell
+git clone https://github.com/arturiermolenko/social_media_platform
+docker-compose up --build
+```
+
+## Features:
+- JWT authenticated:
+- Admin panel: /admin/
+- Documentation is located at: </api/doc/swagger/>, </api/doc/redoc/>
+- Create users and posts
+- Add comments to posts
+- Follow/Unfollow users
+- Like/Unlike posts and comments
+
+
+## Getting access
+You can create superuser with :
+```shell
+python manage.py createsuperuser
+```
+or create a default user using api/user/register/
+
+To work with token use:
+
+- get access token and refresh token http://127.0.0.1:8000/api/user/token/
+- refresh access token http://127.0.0.1:8000/api/user/token/refresh/
+- verify access token http://127.0.0.1:8000/api/user/token/verify/
+
+Note: Make sure to send Token in api urls in Headers as follows:
+
+- key: Authorization
+- value: Bearer @token
+
+
+Social media API allows:
+- using api/admin/ --- Work with admin panel
+- using /api/doc/swagger/ --- Detail api documentation by swagger
+- using /api/doc/redoc/ --- Detail api documentation by redoc
+- using [POST] /api/user/register/ --- Register a new user
+- using [POST] /api/user/token/ --- Obtain new Access and Refresh tokens using credential
+- using [POST] /api/user/token/refresh/ --- Obtain new Access token using refresh token
+- using [POST] /api/user/token/verify/ --- Verify Access token
+- using [GET] /api/user/{id}/ --- Detail user info
+- using [PUT, PATCH, DELETE] /api/user/{id}/ --- Update/Delete user(for account owners only)
+- using [GET] /api/user/{id}/followers/ --- User's followers
+- using [GET] /api/user/{id}/following/ --- Users, that user is following
+- using [GET] /api/user/{id}/liked_posts/ --- Posts, that user likes
+- using [POST] /api/user/{id}/follow_unfollow/ --- Follow/Unfollow user
+######
+- using [GET] /api/posts/ --- Posts list
+- using [POST] /api/posts/create/ --- Add new post
+- using [GET] /api/posts/{post_id}/ --- Detailed post info
+- using [POST] /api/posts/{post_id}/ --- Update/Delete post
+- using [POST] /api/posts/{post_id}/like_unlike/ --- Like/Unlike post
+- using [GET] /api/posts/{post_id}/comments/ --- Post's comments list
+- using [POST] /api/posts/{post_id}/comments/add/ --- Add new comment to the post
+- using [GET] /api/posts/{post_id}/comments/{id}/ --- Detail info about comment
+- using [POST] /api/posts/{post_id}/comments/{id}/ --- Update/Delete comment
+- using [POST] /api/posts/{post_id}/comments/{id}/like_unlike/ --- Like/Unlike the comment
